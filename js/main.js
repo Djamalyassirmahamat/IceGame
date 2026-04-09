@@ -49,7 +49,7 @@ const Storage = {
     },
 
     addScore: (gameName, score) => {
-        const scores = Storage.get('scores', []);
+        let scores = Storage.get('scores', []);  // ← corrigé: const → let
         scores.push({
             game: gameName,
             score: score,
