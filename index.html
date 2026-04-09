@@ -1,13 +1,169 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Ice Game</title>
+    <title>IceGame - 50 Jeux Gratuits</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>Welcome to Ice Game!</h1>
-    <script src="main.js"></script>
+    <!-- MENU PRINCIPAL -->
+    <div id="mainMenu" class="screen active">
+        <div class="menu-container">
+            <h1 class="title">❄️ IceGame</h1>
+            <p class="subtitle">50 Jeux Gratuits</p>
+            
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Rechercher un jeu...">
+            </div>
+            
+            <div class="menu-buttons">
+                <button class="btn btn-primary" onclick="showGames()">🎮 Jouer</button>
+                <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 Classement</button>
+                <button class="btn btn-secondary" onclick="showAbout()">ℹ️ À propos</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GALERIE DE JEUX -->
+    <div id="gamesScreen" class="screen">
+        <div class="games-header">
+            <button class="btn-back" onclick="backToMenu()">← Menu</button>
+            <h2>Sélectionnez un jeu</h2>
+            <div class="stats">
+                <span id="totalScore">Score: 0</span>
+            </div>
+        </div>
+        <div class="games-grid" id="gamesGrid"></div>
+    </div>
+
+    <!-- ÉCRAN DE JEU -->
+    <div id="gameScreen" class="screen">
+        <div class="game-header">
+            <button class="btn-back" onclick="backToGames()">← Retour</button>
+            <h2 id="gameName"></h2>
+            <button class="btn-menu" onclick="backToMenu()">🏠 Menu</button>
+        </div>
+        <div class="game-container">
+            <div id="gameContent"></div>
+        </div>
+        <div class="game-footer">
+            <p id="gameScore"></p>
+        </div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div id="leaderboardScreen" class="screen">
+        <div class="leaderboard-container">
+            <button class="btn-back" onclick="backToMenu()">← Menu</button>
+            <h1>🏆 Classement Global</h1>
+            
+            <div class="leaderboard-tabs">
+                <button class="tab-btn active" onclick="showLeaderboardTab('global')">Global</button>
+                <button class="tab-btn" onclick="showLeaderboardTab('game')">Par Jeu</button>
+                <button class="tab-btn" onclick="showLeaderboardTab('stats')">Statistiques</button>
+            </div>
+
+            <div id="globalLeaderboard" class="leaderboard-tab active">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rang</th>
+                            <th>Jeu</th>
+                            <th>Score</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="globalScores"></tbody>
+                </table>
+            </div>
+
+            <div id="gameLeaderboard" class="leaderboard-tab">
+                <select id="gameSelect" onchange="loadGameLeaderboard()">
+                    <option value="">Sélectionner un jeu...</option>
+                </select>
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rang</th>
+                            <th>Score</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gameScores"></tbody>
+                </table>
+            </div>
+
+            <div id="statsLeaderboard" class="leaderboard-tab">
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <h3>Jeux Joués</h3>
+                        <p id="gamesPlayed">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Score Total</h3>
+                        <p id="totalScoreGlobal">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Meilleur Score</h3>
+                        <p id="bestScore">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Temps Joué</h3>
+                        <p id="playTime">0h</p>
+                    </div>
+                </div>
+                <button class="btn btn-danger" onclick="resetAllScores()">🗑️ Réinitialiser</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- À PROPOS -->
+    <div id="aboutScreen" class="screen">
+        <div class="about-container">
+            <button class="btn-back" onclick="backToMenu()">← Menu</button>
+            <h1>❄️ À propos d'IceGame</h1>
+            
+            <div class="about-content">
+                <h2>Bienvenue sur IceGame !</h2>
+                <p>Une plateforme de jeux 100% gratuit avec <strong>50 jeux amusants</strong> pour tous les âges.</p>
+                
+                <h3>🎮 Caractéristiques</h3>
+                <ul>
+                    <li>✅ 50 jeux différents</li>
+                    <li>✅ Système de score avec sauvegarde</li>
+                    <li>✅ Classement global et par jeu</li>
+                    <li>✅ Interface responsive (mobile, tablette, PC)</li>
+                    <li>✅ Entièrement gratuit</li>
+                    <li>✅ Aucune publicité</li>
+                </ul>
+
+                <h3>🎯 Les Jeux</h3>
+                <p>Retrouvez :</p>
+                <ul>
+                    <li>🐍 Jeux de stratégie (Snake, 2048)</li>
+                    <li>🎯 Jeux d'action (Flappy, Breakout)</li>
+                    <li>🧠 Jeux de mémoire (Memory, Matching)</li>
+                    <li>🎲 Jeux de hasard (Dés, Cartes)</li>
+                    <li>✏️ Jeux de logique (Tic-Tac-Toe, Quiz)</li>
+                </ul>
+
+                <h3>💾 Stockage Local</h3>
+                <p>Tous vos scores sont sauvegardés sur votre appareil. Aucune donnée n'est envoyée à nos serveurs.</p>
+
+                <h3>📱 Responsive Design</h3>
+                <p>Jouez sur votre ordinateur, votre tablette ou votre téléphone mobile !</p>
+
+                <h3>👨‍💻 Développeur</h3>
+                <p>Créé avec ❤️ pour les amoureux des jeux vidéo.</p>
+
+                <h3>📧 Contact</h3>
+                <p>Des questions ? Des suggestions ? Contactez-nous !</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/games.js"></script>
 </body>
 </html>
