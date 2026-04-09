@@ -35,7 +35,7 @@ window.GAMES.push({
             ctx.beginPath(); ctx.arc(ballX,ballY,8,0,Math.PI*2); ctx.fill();
             ctx.fillStyle='white'; ctx.font='20px monospace'; ctx.fillText('Score: '+score,10,30);
         }
-        const interval = setInterval(()=>{ if(!active){ clearInterval(interval); submitScore('Pong',score); return; } update(); draw(); },30);
+        const interval = setInterval(()=>{ if(!active){ clearInterval(interval); window.submitScore('Pong',score); return; } update(); draw(); },30);
         this.stop = ()=>{ clearInterval(interval); document.removeEventListener('keydown',keyHandler); document.removeEventListener('keyup',keyUpHandler); };
     },
     stop:()=>{}
@@ -71,7 +71,7 @@ window.GAMES.push({
             ctx.fillStyle='#ffff00'; ctx.fillRect(food.x*20,food.y*20,18,18);
             ctx.fillStyle='white'; ctx.font='20px monospace'; ctx.fillText('Score: '+score,10,30);
         }
-        const loop = setInterval(()=>{ if(!active){ clearInterval(loop); submitScore('Snake',score); return; } update(); draw(); },100);
+        const loop = setInterval(()=>{ if(!active){ clearInterval(loop); window.submitScore('Snake',score); return; } update(); draw(); },100);
         this.stop = ()=>{ clearInterval(loop); document.removeEventListener('keydown',keyHandler); };
     },
     stop:()=>{}
@@ -100,7 +100,7 @@ window.GAMES.push({
                 if(flipped.length===2){
                     if(flipped[0].dataset.symbol===flipped[1].dataset.symbol){
                         matched++; score+=10; flipped=[];
-                        if(matched===8){ ended=true; submitScore('Memory',score); }
+                        if(matched===8){ ended=true; window.submitScore('Memory',score); }
                     } else {
                         setTimeout(()=>{ flipped.forEach(c=>c.textContent='?'); flipped=[]; },800);
                     }
@@ -112,7 +112,7 @@ window.GAMES.push({
     stop:()=>{}
 });
 
-// 4. 2048 (version complète simplifiée mais fonctionnelle)
+// 4. 2048
 window.GAMES.push({
     name: '2048',
     html: '<div id="board2048" style="display:grid; grid-template-columns:repeat(4,80px); gap:10px; justify-content:center;"></div><p id="score2048" class="text-success text-center mt-3">Score: 0</p>',
@@ -176,7 +176,7 @@ window.GAMES.push({
             if(e.key==='ArrowDown') move(0,1);
             if(e.key==='ArrowLeft') move(-1,0);
             if(e.key==='ArrowRight') move(1,0);
-            if(board.every(v=>v!==0)) { active=false; submitScore('2048',score); }
+            if(board.every(v=>v!==0)) { active=false; window.submitScore('2048',score); }
         };
         document.addEventListener('keydown', keyHandler);
         this.stop = ()=> document.removeEventListener('keydown', keyHandler);
@@ -221,7 +221,7 @@ window.GAMES.push({
             ctx.fillStyle='white'; ctx.font='20px monospace'; ctx.fillText('Score: '+score,10,30);
         }
         const interval = setInterval(()=>{
-            if(!active){ clearInterval(interval); submitScore('Flappy Bird',score); return; }
+            if(!active){ clearInterval(interval); window.submitScore('Flappy Bird',score); return; }
             update(); draw();
         },30);
         this.stop = ()=>{ clearInterval(interval); document.removeEventListener('keydown',jump); document.removeEventListener('click',jump); };
@@ -266,7 +266,7 @@ window.GAMES.push({
             bricks.forEach(b=>{ if(b.active){ ctx.fillStyle='#667eea'; ctx.fillRect(b.x,b.y,b.w,b.h); } });
             ctx.fillStyle='white'; ctx.font='20px monospace'; ctx.fillText('Score: '+score,10,30);
         }
-        const loop = setInterval(()=>{ if(!active){ clearInterval(loop); submitScore('Breakout',score); return; } update(); draw(); },30);
+        const loop = setInterval(()=>{ if(!active){ clearInterval(loop); window.submitScore('Breakout',score); return; } update(); draw(); },30);
         this.stop = ()=>{ clearInterval(loop); document.removeEventListener('keydown',keyHandler); document.removeEventListener('keyup',keyUpHandler); };
     },
     stop:()=>{}
@@ -306,7 +306,7 @@ window.GAMES.push({
                         gameOver=true;
                         if(winner==='tie') statusDiv.textContent = 'Match nul ! Score: 5';
                         else statusDiv.textContent = `${winner} gagne ! Score: 10`;
-                        submitScore('Tic-Tac-Toe', winner==='tie' ? 5 : 10);
+                        window.submitScore('Tic-Tac-Toe', winner==='tie' ? 5 : 10);
                     } else {
                         turn = turn==='X' ? 'O' : 'X';
                         render();
@@ -352,7 +352,7 @@ window.GAMES.push({
         function gameOver() {
             canPlay=false;
             statusDiv.textContent = `Partie terminée ! Score: ${score}`;
-            submitScore('Simon Says', score);
+            window.submitScore('Simon Says', score);
         }
         function handleClick(color) {
             if(!canPlay) return;
@@ -396,7 +396,7 @@ window.GAMES.push({
             if(guess === secret){
                 let score = Math.max(0, 100 - attempts*5);
                 result.innerHTML = `<span class="text-success">Bravo ! Le prix était ${secret}. Score: ${score}</span>`;
-                submitScore('Juste Prix', score);
+                window.submitScore('Juste Prix', score);
                 finished=true;
                 btn.disabled=true;
             } else if(guess < secret) result.innerHTML = '<span class="text-warning">Plus haut !</span>';
@@ -435,7 +435,7 @@ window.GAMES.push({
             if(playerScore >= 50) {
                 finished = true;
                 resultDiv.innerHTML += `<br><span class="text-success">Partie terminée ! Score final: ${playerScore}</span>`;
-                submitScore('Pierre-Feuille-Ciseaux', playerScore);
+                window.submitScore('Pierre-Feuille-Ciseaux', playerScore);
             }
         }
         document.getElementById('rock').onclick = ()=> play('pierre');
