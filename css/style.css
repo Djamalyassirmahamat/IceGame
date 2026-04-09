@@ -158,6 +158,7 @@ body {
     align-items: center;
     justify-content: center;
     overflow: auto;
+min-height:300px;
 }
 
 .search-input {
