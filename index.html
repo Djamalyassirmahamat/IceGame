@@ -2,14 +2,10 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IceGame - 50 Jeux Gratuits</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>IceGame - 10 Jeux Complets</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-<style>
-    #gameContent button { display: inline-block !important; background: red; }
-    .game-content { min-height: 400px; }
-</style>
 </head>
 <body>
     <!-- MENU PRINCIPAL -->
@@ -20,18 +16,11 @@
                     <div class="card glass-effect border-primary">
                         <div class="card-body text-center">
                             <h1 class="display-3 text-success mb-3">IceGame</h1>
-                            <p class="lead text-muted mb-4">50 Jeux Gratuits</p>
-                            
+                            <p class="lead text-muted mb-4">10 Jeux Complets</p>
                             <div class="d-grid gap-3">
-                                <button class="btn btn-success btn-lg" onclick="showGames()">
-                                    <strong>Jouer</strong>
-                                </button>
-                                <button class="btn btn-info btn-lg" onclick="showLeaderboard()">
-                                    <strong>Classement</strong>
-                                </button>
-                                <button class="btn btn-warning btn-lg" onclick="showAbout()">
-                                    <strong>À propos</strong>
-                                </button>
+                                <button class="btn btn-success btn-lg" onclick="showGames()"><strong>Jouer</strong></button>
+                                <button class="btn btn-info btn-lg" onclick="showLeaderboard()"><strong>Classement</strong></button>
+                                <button class="btn btn-warning btn-lg" onclick="showAbout()"><strong>À propos</strong></button>
                             </div>
                         </div>
                     </div>
@@ -49,7 +38,6 @@
                 <span class="badge bg-success" id="totalScore">Score: 0</span>
             </div>
         </nav>
-
         <div class="container-fluid p-4">
             <input type="text" class="form-control mb-4 search-input" id="searchInput" placeholder="Rechercher un jeu..." onkeyup="filterGames()">
             <div class="row g-3" id="gamesGrid"></div>
@@ -65,9 +53,7 @@
                 <button class="btn btn-outline-success btn-sm" onclick="backToMenu()">Menu</button>
             </div>
         </nav>
-
         <div class="container-fluid game-content" id="gameContent"></div>
-
         <div class="bg-dark border-top border-success p-3 text-center">
             <span class="text-success" id="gameScore">En cours...</span>
         </div>
@@ -81,85 +67,26 @@
                 <span class="navbar-brand mb-0 h1 text-success">Classement</span>
             </div>
         </nav>
-
         <div class="container-fluid p-4">
-            <ul class="nav nav-tabs mb-4" role="tablist">
-                <li class="nav-item">
-                    <button class="nav-link active text-success" data-bs-toggle="tab" data-bs-target="#globalTab">Global</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link text-success" data-bs-toggle="tab" data-bs-target="#gameTab">Par Jeu</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link text-success" data-bs-toggle="tab" data-bs-target="#statsTab">Statistiques</button>
-                </li>
+            <ul class="nav nav-tabs mb-4">
+                <li class="nav-item"><button class="nav-link active text-success" data-bs-toggle="tab" data-bs-target="#globalTab">Global</button></li>
+                <li class="nav-item"><button class="nav-link text-success" data-bs-toggle="tab" data-bs-target="#gameTab">Par Jeu</button></li>
+                <li class="nav-item"><button class="nav-link text-success" data-bs-toggle="tab" data-bs-target="#statsTab">Statistiques</button></li>
             </ul>
-
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="globalTab">
-                    <table class="table table-dark table-striped">
-                        <thead>
-                            <tr class="text-success">
-                                <th>Rang</th>
-                                <th>Jeu</th>
-                                <th>Score</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody id="globalScores"></tbody>
-                    </table>
+                    <table class="table table-dark table-striped"><thead><tr class="text-success"><th>Rang</th><th>Jeu</th><th>Score</th><th>Date</th></tr></thead><tbody id="globalScores"></tbody></table>
                 </div>
-
                 <div class="tab-pane fade" id="gameTab">
-                    <select class="form-select mb-3" id="gameSelect" onchange="loadGameLeaderboard()">
-                        <option value="">Sélectionner un jeu...</option>
-                    </select>
-                    <table class="table table-dark table-striped">
-                        <thead>
-                            <tr class="text-success">
-                                <th>Rang</th>
-                                <th>Score</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody id="gameScores"></tbody>
-                    </table>
+                    <select class="form-select mb-3" id="gameSelect" onchange="loadGameLeaderboard()"><option value="">Sélectionner un jeu...</option></select>
+                    <table class="table table-dark table-striped"><thead><tr class="text-success"><th>Rang</th><th>Score</th><th>Date</th></tr></thead><tbody id="gameScores"></tbody></table>
                 </div>
-
                 <div class="tab-pane fade" id="statsTab">
                     <div class="row">
-                        <div class="col-md-3">
-                            <div class="card bg-dark border-success text-center">
-                                <div class="card-body">
-                                    <h5 class="card-title text-success">Jeux Joués</h5>
-                                    <p class="card-text display-6 text-white" id="gamesPlayed">0</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card bg-dark border-success text-center">
-                                <div class="card-body">
-                                    <h5 class="card-title text-success">Score Total</h5>
-                                    <p class="card-text display-6 text-white" id="totalScoreGlobal">0</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card bg-dark border-success text-center">
-                                <div class="card-body">
-                                    <h5 class="card-title text-success">Meilleur Score</h5>
-                                    <p class="card-text display-6 text-white" id="bestScore">0</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card bg-dark border-success text-center">
-                                <div class="card-body">
-                                    <h5 class="card-title text-success">Temps Joué</h5>
-                                    <p class="card-text display-6 text-white" id="playTime">0h</p>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="col-md-3"><div class="card bg-dark border-success text-center"><div class="card-body"><h5 class="card-title text-success">Jeux Joués</h5><p class="card-text display-6 text-white" id="gamesPlayed">0</p></div></div></div>
+                        <div class="col-md-3"><div class="card bg-dark border-success text-center"><div class="card-body"><h5 class="card-title text-success">Score Total</h5><p class="card-text display-6 text-white" id="totalScoreGlobal">0</p></div></div></div>
+                        <div class="col-md-3"><div class="card bg-dark border-success text-center"><div class="card-body"><h5 class="card-title text-success">Meilleur Score</h5><p class="card-text display-6 text-white" id="bestScore">0</p></div></div></div>
+                        <div class="col-md-3"><div class="card bg-dark border-success text-center"><div class="card-body"><h5 class="card-title text-success">Temps Joué</h5><p class="card-text display-6 text-white" id="playTime">0h</p></div></div></div>
                     </div>
                     <button class="btn btn-danger mt-4 w-100" onclick="resetAllScores()">Réinitialiser les scores</button>
                 </div>
@@ -169,47 +96,8 @@
 
     <!-- À PROPOS -->
     <div id="aboutScreen" class="screen">
-        <nav class="navbar navbar-dark bg-dark border-bottom border-success">
-            <div class="container-fluid">
-                <button class="btn btn-outline-light btn-sm" onclick="backToMenu()">← Menu</button>
-                <span class="navbar-brand mb-0 h1 text-success">À propos</span>
-            </div>
-        </nav>
-
-        <div class="container mt-4 mb-4">
-            <div class="card glass-effect border-success">
-                <div class="card-body text-white">
-                    <h2 class="text-success mb-3">Bienvenue sur IceGame</h2>
-                    <p class="lead">Une plateforme de jeux 100% gratuit avec <strong>50 jeux amusants</strong> pour tous les âges.</p>
-
-                    <h4 class="text-success mt-4">Caractéristiques</h4>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item bg-transparent text-white border-success">✅ 50 jeux différents</li>
-                        <li class="list-group-item bg-transparent text-white border-success">✅ Système de score avec sauvegarde</li>
-                        <li class="list-group-item bg-transparent text-white border-success">✅ Classement global et par jeu</li>
-                        <li class="list-group-item bg-transparent text-white border-success">✅ Interface responsive (mobile, tablette, PC)</li>
-                        <li class="list-group-item bg-transparent text-white border-success">✅ Entièrement gratuit</li>
-                        <li class="list-group-item bg-transparent text-white border-success">✅ Aucune publicité</li>
-                    </ul>
-
-                    <h4 class="text-success mt-4">Les Jeux</h4>
-                    <p>Retrouvez une variété de jeux :</p>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item bg-transparent text-white border-success">Jeux de stratégie (Snake, 2048)</li>
-                        <li class="list-group-item bg-transparent text-white border-success">Jeux d'action (Flappy, Breakout)</li>
-                        <li class="list-group-item bg-transparent text-white border-success">Jeux de mémoire (Memory, Matching)</li>
-                        <li class="list-group-item bg-transparent text-white border-success">Jeux de hasard (Dés, Cartes)</li>
-                        <li class="list-group-item bg-transparent text-white border-success">Jeux de logique (Tic-Tac-Toe, Quiz)</li>
-                    </ul>
-
-                    <h4 class="text-success mt-4">Stockage Local</h4>
-                    <p>Tous vos scores sont sauvegardés sur votre appareil. Aucune donnée n'est envoyée à nos serveurs.</p>
-
-                    <h4 class="text-success mt-4">Responsive Design</h4>
-                    <p>Jouez sur votre ordinateur, votre tablette ou votre téléphone mobile !</p>
-                </div>
-            </div>
-        </div>
+        <nav class="navbar navbar-dark bg-dark border-bottom border-success"><div class="container-fluid"><button class="btn btn-outline-light btn-sm" onclick="backToMenu()">← Menu</button><span class="navbar-brand mb-0 h1 text-success">À propos</span></div></nav>
+        <div class="container mt-4 mb-4"><div class="card glass-effect border-success"><div class="card-body text-white"><h2 class="text-success mb-3">Bienvenue sur IceGame</h2><p class="lead">10 jeux complets, gratuits, sans pub, avec sauvegarde locale.</p></div></div></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
