@@ -145,6 +145,12 @@ body {
     color: #00ff88;
 }
 
+#gameContent button {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
 .game-content {
     background: var(--dark-bg);
     flex: 1;
