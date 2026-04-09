@@ -1,9 +1,15 @@
 window.GAMES = [];
 
-// 1. PONG
+// 1. PONG (avec boutons Haut/Bas)
 window.GAMES.push({
     name: 'Pong',
-    html: '<canvas id="pongCanvas" width="800" height="400"></canvas>',
+    html: `
+        <canvas id="pongCanvas" width="800" height="400"></canvas>
+        <div class="d-flex justify-content-center gap-3 mt-3">
+            <button class="btn btn-outline-success" id="pongUp">⬆️ Haut</button>
+            <button class="btn btn-outline-success" id="pongDown">⬇️ Bas</button>
+        </div>
+    `,
     init: function() {
         const canvas = document.getElementById('pongCanvas');
         const ctx = canvas.getContext('2d');
@@ -12,14 +18,39 @@ window.GAMES.push({
         let paddleY = 150, computerY = 150;
         let ballX = canvas.width/2, ballY = canvas.height/2, ballDX = 4, ballDY = 4;
         let score = 0, active = true;
+        
+        // Contrôles clavier
         const keys = {ArrowUp:false, ArrowDown:false};
         const keyHandler = (e) => { if(e.key==='ArrowUp') keys.ArrowUp=true; if(e.key==='ArrowDown') keys.ArrowDown=true; };
         const keyUpHandler = (e) => { if(e.key==='ArrowUp') keys.ArrowUp=false; if(e.key==='ArrowDown') keys.ArrowDown=false; };
         document.addEventListener('keydown', keyHandler);
         document.addEventListener('keyup', keyUpHandler);
+        
+        // Contrôles tactiles
+        const upBtn = document.getElementById('pongUp');
+        const downBtn = document.getElementById('pongDown');
+        let touchUp = false, touchDown = false;
+        const startUp = () => { touchUp = true; };
+        const stopUp = () => { touchUp = false; };
+        const startDown = () => { touchDown = true; };
+        const stopDown = () => { touchDown = false; };
+        upBtn.addEventListener('mousedown', startUp);
+        upBtn.addEventListener('mouseup', stopUp);
+        upBtn.addEventListener('mouseleave', stopUp);
+        upBtn.addEventListener('touchstart', startUp);
+        upBtn.addEventListener('touchend', stopUp);
+        downBtn.addEventListener('mousedown', startDown);
+        downBtn.addEventListener('mouseup', stopDown);
+        downBtn.addEventListener('mouseleave', stopDown);
+        downBtn.addEventListener('touchstart', startDown);
+        downBtn.addEventListener('touchend', stopDown);
+        
         function update() {
-            if(keys.ArrowUp) paddleY = Math.max(0, paddleY-6);
-            if(keys.ArrowDown) paddleY = Math.min(canvas.height-100, paddleY+6);
+            let move = 0;
+            if (keys.ArrowUp || touchUp) move = -6;
+            if (keys.ArrowDown || touchDown) move = 6;
+            paddleY = Math.max(0, Math.min(canvas.height-100, paddleY + move));
+            
             ballX += ballDX; ballY += ballDY;
             if(ballY<0 || ballY>canvas.height) ballDY = -ballDY;
             if(ballX<30 && ballX>20 && ballY>paddleY && ballY<paddleY+100) { ballDX = Math.abs(ballDX); score++; }
@@ -36,20 +67,44 @@ window.GAMES.push({
             ctx.fillStyle='white'; ctx.font='20px monospace'; ctx.fillText('Score: '+score,10,30);
         }
         const interval = setInterval(()=>{ if(!active){ clearInterval(interval); window.submitScore('Pong',score); return; } update(); draw(); },30);
-        this.stop = ()=>{ clearInterval(interval); document.removeEventListener('keydown',keyHandler); document.removeEventListener('keyup',keyUpHandler); };
+        this.stop = ()=>{
+            clearInterval(interval);
+            document.removeEventListener('keydown',keyHandler);
+            document.removeEventListener('keyup',keyUpHandler);
+            upBtn.removeEventListener('mousedown', startUp);
+            upBtn.removeEventListener('mouseup', stopUp);
+            upBtn.removeEventListener('mouseleave', stopUp);
+            upBtn.removeEventListener('touchstart', startUp);
+            upBtn.removeEventListener('touchend', stopUp);
+            downBtn.removeEventListener('mousedown', startDown);
+            downBtn.removeEventListener('mouseup', stopDown);
+            downBtn.removeEventListener('mouseleave', stopDown);
+            downBtn.removeEventListener('touchstart', startDown);
+            downBtn.removeEventListener('touchend', stopDown);
+        };
     },
     stop:()=>{}
 });
 
-// 2. SNAKE
+// 2. SNAKE (avec boutons directionnels)
 window.GAMES.push({
     name: 'Snake',
-    html: '<canvas id="snakeCanvas" width="400" height="400"></canvas>',
+    html: `
+        <canvas id="snakeCanvas" width="400" height="400"></canvas>
+        <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+            <button class="btn btn-outline-success" id="snakeUp">⬆️</button>
+            <button class="btn btn-outline-success" id="snakeDown">⬇️</button>
+            <button class="btn btn-outline-success" id="snakeLeft">⬅️</button>
+            <button class="btn btn-outline-success" id="snakeRight">➡️</button>
+        </div>
+    `,
     init: function() {
         const canvas = document.getElementById('snakeCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width=400; canvas.height=400;
         let snake = [{x:10,y:10}], food = {x:15,y:15}, dir={x:1,y:0}, nextDir={x:1,y:0}, score=0, active=true;
+        
+        // Clavier
         const keyHandler = (e) => {
             if(e.key==='ArrowUp' && dir.y===0) nextDir={x:0,y:-1};
             if(e.key==='ArrowDown' && dir.y===0) nextDir={x:0,y:1};
@@ -57,6 +112,20 @@ window.GAMES.push({
             if(e.key==='ArrowRight' && dir.x===0) nextDir={x:1,y:0};
         };
         document.addEventListener('keydown', keyHandler);
+        
+        // Boutons tactiles
+        const setDir = (dx, dy) => {
+            if (active && (dx !== 0 || dy !== 0)) {
+                if ((dx === 0 && dir.x !== 0) || (dy === 0 && dir.y !== 0)) {
+                    nextDir = {x:dx, y:dy};
+                }
+            }
+        };
+        document.getElementById('snakeUp').onclick = () => setDir(0,-1);
+        document.getElementById('snakeDown').onclick = () => setDir(0,1);
+        document.getElementById('snakeLeft').onclick = () => setDir(-1,0);
+        document.getElementById('snakeRight').onclick = () => setDir(1,0);
+        
         function update() {
             dir = nextDir;
             const head = {x:snake[0].x+dir.x, y:snake[0].y+dir.y};
@@ -77,7 +146,7 @@ window.GAMES.push({
     stop:()=>{}
 });
 
-// 3. MEMORY
+// 3. MEMORY (pas de boutons nécessaires)
 window.GAMES.push({
     name: 'Memory',
     html: '<div id="memoryGame" style="display:grid; grid-template-columns:repeat(4,80px); gap:10px; justify-content:center;"></div>',
@@ -112,10 +181,19 @@ window.GAMES.push({
     stop:()=>{}
 });
 
-// 4. 2048
+// 4. 2048 (avec boutons fléchés)
 window.GAMES.push({
     name: '2048',
-    html: '<div id="board2048" style="display:grid; grid-template-columns:repeat(4,80px); gap:10px; justify-content:center;"></div><p id="score2048" class="text-success text-center mt-3">Score: 0</p>',
+    html: `
+        <div id="board2048" style="display:grid; grid-template-columns:repeat(4,80px); gap:10px; justify-content:center;"></div>
+        <p id="score2048" class="text-success text-center mt-3">Score: 0</p>
+        <div class="d-flex justify-content-center gap-2 mt-2 flex-wrap">
+            <button class="btn btn-outline-success" id="btnUp">⬆️</button>
+            <button class="btn btn-outline-success" id="btnDown">⬇️</button>
+            <button class="btn btn-outline-success" id="btnLeft">⬅️</button>
+            <button class="btn btn-outline-success" id="btnRight">➡️</button>
+        </div>
+    `,
     init: function() {
         let board = Array(16).fill(0);
         let score = 0;
@@ -170,6 +248,7 @@ window.GAMES.push({
             }
         }
         addRandom(); addRandom(); draw();
+        
         const keyHandler = (e) => {
             if(!active) return;
             if(e.key==='ArrowUp') move(0,-1);
@@ -179,15 +258,27 @@ window.GAMES.push({
             if(board.every(v=>v!==0)) { active=false; window.submitScore('2048',score); }
         };
         document.addEventListener('keydown', keyHandler);
+        
+        // Boutons
+        document.getElementById('btnUp').onclick = () => { if(active) move(0,-1); if(board.every(v=>v!==0)) { active=false; window.submitScore('2048',score); } };
+        document.getElementById('btnDown').onclick = () => { if(active) move(0,1); if(board.every(v=>v!==0)) { active=false; window.submitScore('2048',score); } };
+        document.getElementById('btnLeft').onclick = () => { if(active) move(-1,0); if(board.every(v=>v!==0)) { active=false; window.submitScore('2048',score); } };
+        document.getElementById('btnRight').onclick = () => { if(active) move(1,0); if(board.every(v=>v!==0)) { active=false; window.submitScore('2048',score); } };
+        
         this.stop = ()=> document.removeEventListener('keydown', keyHandler);
     },
     stop:()=>{}
 });
 
-// 5. FLAPPY BIRD
+// 5. FLAPPY BIRD (déjà tactile par clic, mais ajout d'un bouton)
 window.GAMES.push({
     name: 'Flappy Bird',
-    html: '<canvas id="flappyCanvas" width="400" height="600"></canvas>',
+    html: `
+        <canvas id="flappyCanvas" width="400" height="600"></canvas>
+        <div class="d-flex justify-content-center mt-3">
+            <button class="btn btn-success btn-lg" id="flappyJump">🕹️ Sauter</button>
+        </div>
+    `,
     init: function() {
         const canvas = document.getElementById('flappyCanvas');
         const ctx = canvas.getContext('2d');
@@ -196,6 +287,9 @@ window.GAMES.push({
         const jump = ()=>{ if(active) vel=-8; };
         document.addEventListener('keydown', jump);
         document.addEventListener('click', jump);
+        const jumpBtn = document.getElementById('flappyJump');
+        if(jumpBtn) jumpBtn.onclick = jump;
+        
         function update() {
             vel+=0.5; birdY+=vel;
             if(birdY<0||birdY+30>600) active=false;
@@ -224,15 +318,21 @@ window.GAMES.push({
             if(!active){ clearInterval(interval); window.submitScore('Flappy Bird',score); return; }
             update(); draw();
         },30);
-        this.stop = ()=>{ clearInterval(interval); document.removeEventListener('keydown',jump); document.removeEventListener('click',jump); };
+        this.stop = ()=>{ clearInterval(interval); document.removeEventListener('keydown',jump); document.removeEventListener('click',jump); if(jumpBtn) jumpBtn.onclick = null; };
     },
     stop:()=>{}
 });
 
-// 6. BREAKOUT
+// 6. BREAKOUT (avec boutons gauche/droite)
 window.GAMES.push({
     name: 'Breakout',
-    html: '<canvas id="breakoutCanvas" width="400" height="600"></canvas>',
+    html: `
+        <canvas id="breakoutCanvas" width="400" height="600"></canvas>
+        <div class="d-flex justify-content-center gap-3 mt-3">
+            <button class="btn btn-outline-success" id="breakoutLeft">⬅️ Gauche</button>
+            <button class="btn btn-outline-success" id="breakoutRight">➡️ Droite</button>
+        </div>
+    `,
     init: function() {
         const canvas = document.getElementById('breakoutCanvas');
         const ctx = canvas.getContext('2d');
@@ -240,14 +340,37 @@ window.GAMES.push({
         let paddleX=150, ballX=200, ballY=500, ballDX=3, ballDY=-3;
         let bricks=[], score=0, active=true;
         for(let i=0;i<5;i++) for(let j=0;j<8;j++) bricks.push({x:j*50, y:i*20+30, w:48, h:18, active:true});
+        
+        // Clavier
         const keys={ArrowLeft:false, ArrowRight:false};
         const keyHandler = (e)=>{ if(e.key==='ArrowLeft') keys.ArrowLeft=true; if(e.key==='ArrowRight') keys.ArrowRight=true; };
         const keyUpHandler = (e)=>{ if(e.key==='ArrowLeft') keys.ArrowLeft=false; if(e.key==='ArrowRight') keys.ArrowRight=false; };
         document.addEventListener('keydown', keyHandler);
         document.addEventListener('keyup', keyUpHandler);
+        
+        // Boutons
+        let leftPressed = false, rightPressed = false;
+        const leftBtn = document.getElementById('breakoutLeft');
+        const rightBtn = document.getElementById('breakoutRight');
+        const setLeft = (state) => { leftPressed = state; };
+        const setRight = (state) => { rightPressed = state; };
+        leftBtn.addEventListener('mousedown', ()=>setLeft(true));
+        leftBtn.addEventListener('mouseup', ()=>setLeft(false));
+        leftBtn.addEventListener('mouseleave', ()=>setLeft(false));
+        leftBtn.addEventListener('touchstart', ()=>setLeft(true));
+        leftBtn.addEventListener('touchend', ()=>setLeft(false));
+        rightBtn.addEventListener('mousedown', ()=>setRight(true));
+        rightBtn.addEventListener('mouseup', ()=>setRight(false));
+        rightBtn.addEventListener('mouseleave', ()=>setRight(false));
+        rightBtn.addEventListener('touchstart', ()=>setRight(true));
+        rightBtn.addEventListener('touchend', ()=>setRight(false));
+        
         function update() {
-            if(keys.ArrowLeft) paddleX = Math.max(0, paddleX-6);
-            if(keys.ArrowRight) paddleX = Math.min(350, paddleX+6);
+            let move = 0;
+            if (keys.ArrowLeft || leftPressed) move = -6;
+            if (keys.ArrowRight || rightPressed) move = 6;
+            paddleX = Math.max(0, Math.min(350, paddleX + move));
+            
             ballX+=ballDX; ballY+=ballDY;
             if(ballX<0||ballX>400) ballDX=-ballDX;
             if(ballY<0) ballDY=-ballDY;
@@ -267,12 +390,26 @@ window.GAMES.push({
             ctx.fillStyle='white'; ctx.font='20px monospace'; ctx.fillText('Score: '+score,10,30);
         }
         const loop = setInterval(()=>{ if(!active){ clearInterval(loop); window.submitScore('Breakout',score); return; } update(); draw(); },30);
-        this.stop = ()=>{ clearInterval(loop); document.removeEventListener('keydown',keyHandler); document.removeEventListener('keyup',keyUpHandler); };
+        this.stop = ()=>{
+            clearInterval(loop);
+            document.removeEventListener('keydown',keyHandler);
+            document.removeEventListener('keyup',keyUpHandler);
+            leftBtn.removeEventListener('mousedown', setLeft);
+            leftBtn.removeEventListener('mouseup', setLeft);
+            leftBtn.removeEventListener('mouseleave', setLeft);
+            leftBtn.removeEventListener('touchstart', setLeft);
+            leftBtn.removeEventListener('touchend', setLeft);
+            rightBtn.removeEventListener('mousedown', setRight);
+            rightBtn.removeEventListener('mouseup', setRight);
+            rightBtn.removeEventListener('mouseleave', setRight);
+            rightBtn.removeEventListener('touchstart', setRight);
+            rightBtn.removeEventListener('touchend', setRight);
+        };
     },
     stop:()=>{}
 });
 
-// 7. TIC-TAC-TOE
+// 7. TIC-TAC-TOE (déjà tactile)
 window.GAMES.push({
     name: 'Tic-Tac-Toe',
     html: '<div id="tttBoard" style="display:grid; grid-template-columns:repeat(3,100px); gap:5px; justify-content:center;"></div><p id="tttStatus" class="text-center mt-3"></p>',
@@ -320,7 +457,7 @@ window.GAMES.push({
     stop:()=>{}
 });
 
-// 8. SIMON SAYS
+// 8. SIMON SAYS (déjà tactile)
 window.GAMES.push({
     name: 'Simon Says',
     html: '<div style="display:flex; gap:10px; justify-content:center;"><div id="simonRed" style="width:100px;height:100px;background:darkred;border-radius:10px;"></div><div id="simonGreen" style="width:100px;height:100px;background:darkgreen;border-radius:10px;"></div></div><div style="display:flex; gap:10px; justify-content:center; margin-top:10px;"><div id="simonBlue" style="width:100px;height:100px;background:darkblue;border-radius:10px;"></div><div id="simonYellow" style="width:100px;height:100px;background:darkgoldenrod;border-radius:10px;"></div></div><p id="simonStatus" class="text-center mt-3"></p>',
@@ -377,7 +514,7 @@ window.GAMES.push({
     stop:()=>{}
 });
 
-// 9. JUSTE PRIX
+// 9. JUSTE PRIX (déjà tactile)
 window.GAMES.push({
     name: 'Juste Prix',
     html: '<div class="text-center"><p>Devinez le prix entre 1 et 100</p><input type="number" id="guessInput" class="form-control w-50 mx-auto"><button id="guessBtn" class="btn btn-success mt-2">Deviner</button><p id="guessResult" class="mt-3"></p></div>',
@@ -407,7 +544,7 @@ window.GAMES.push({
     stop:()=>{}
 });
 
-// 10. PIERRE-FEUILLE-CISEAUX
+// 10. PIERRE-FEUILLE-CISEAUX (déjà tactile)
 window.GAMES.push({
     name: 'Pierre-Feuille-Ciseaux',
     html: '<div class="text-center"><button id="rock" class="btn btn-success m-2">🪨 Pierre</button><button id="paper" class="btn btn-success m-2">📄 Feuille</button><button id="scissors" class="btn btn-success m-2">✂️ Ciseaux</button><p id="rpsResult" class="mt-3"></p><p id="rpsScore" class="mt-2">Score: 0</p></div>',
