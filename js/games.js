@@ -195,94 +195,165 @@ window.GAMES.push({
     stop:()=>{}
 });
 
-// 4. 2048 (avec boutons fléchés)
-window.GAMES.push({
+{
     name: '2048',
     html: `
-        <div id="board2048" style="display:grid; grid-template-columns:repeat(4,80px); gap:10px; justify-content:center;"></div>
-        <p id="score2048" class="text-success text-center mt-3">Score: 0</p>
-        <div class="d-flex justify-content-center gap-2 mt-2 flex-wrap">
-            <button class="btn btn-outline-success" id="btnUp">⬆️</button>
-            <button class="btn btn-outline-success" id="btnDown">⬇️</button>
-            <button class="btn btn-outline-success" id="btnLeft">⬅️</button>
-            <button class="btn btn-outline-success" id="btnRight">➡️</button>
+        <div style="text-align: center;">
+            <div id="grid2048" style="display: grid; grid-template-columns: repeat(4, 80px); gap: 10px; justify-content: center; margin: 20px auto;"></div>
+            <p id="score2048" class="text-success" style="font-size: 1.5rem;">Score: 0</p>
+            <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+                <button class="btn btn-outline-success" id="btnUp2048">⬆️</button>
+                <button class="btn btn-outline-success" id="btnDown2048">⬇️</button>
+                <button class="btn btn-outline-success" id="btnLeft2048">⬅️</button>
+                <button class="btn btn-outline-success" id="btnRight2048">➡️</button>
+            </div>
         </div>
     `,
     init: function() {
-        let board = Array(16).fill(0);
+        let grid = [
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
+        ];
         let score = 0;
-        let active = true;
-        function addRandom() {
-            const empty = board.reduce((arr,v,i)=> v===0 ? [...arr,i] : arr, []);
-            if(empty.length) board[empty[Math.floor(Math.random()*empty.length)]] = Math.random()<0.9 ? 2 : 4;
+        let gameActive = true;
+
+        // Ajouter une nouvelle tuile (2 ou 4) dans une case vide
+        function addRandomTile() {
+            let empty = [];
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    if (grid[i][j] === 0) empty.push([i, j]);
+                }
+            }
+            if (empty.length === 0) return false;
+            let [row, col] = empty[Math.floor(Math.random() * empty.length)];
+            grid[row][col] = Math.random() < 0.9 ? 2 : 4;
+            return true;
         }
-        function draw() {
-            const container = document.getElementById('board2048');
+
+        // Afficher la grille
+        function drawGrid() {
+            const container = document.getElementById('grid2048');
             container.innerHTML = '';
-            board.forEach(v=>{
-                const tile = document.createElement('div');
-                tile.className='btn btn-outline-success';
-                tile.style.cssText='width:80px;height:80px;display:flex;align-items:center;justify-content:center;font-size:1.5em;font-weight:bold;';
-                tile.textContent = v===0 ? '' : v;
-                container.appendChild(tile);
-            });
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    const value = grid[i][j];
+                    const tile = document.createElement('div');
+                    tile.className = 'btn btn-outline-success';
+                    tile.style.cssText = 'width:80px;height:80px;display:flex;align-items:center;justify-content:center;font-size:1.5em;font-weight:bold;';
+                    tile.textContent = value === 0 ? '' : value;
+                    container.appendChild(tile);
+                }
+            }
             document.getElementById('score2048').textContent = `Score: ${score}`;
         }
-        function move(dx, dy) {
-            let changed = false;
-            for(let i=0;i<4;i++){
-                let line=[];
-                for(let j=0;j<4;j++){
-                    let x = dx===1 ? 3-j : (dx===-1 ? j : i);
-                    let y = dy===1 ? 3-j : (dy===-1 ? j : i);
-                    let idx = y*4+x;
-                    if(board[idx]!==0) line.push(board[idx]);
+
+        // Vérifier si le jeu est terminé (plus de mouvements possibles)
+        function isGameOver() {
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    if (grid[i][j] === 0) return false;
+                    if (j < 3 && grid[i][j] === grid[i][j+1]) return false;
+                    if (i < 3 && grid[i][j] === grid[i+1][j]) return false;
                 }
-                for(let k=0;k<line.length-1;k++){
-                    if(line[k]===line[k+1]){
-                        line[k]*=2;
-                        score += line[k];
-                        line.splice(k+1,1);
-                        changed=true;
+            }
+            return true;
+        }
+
+        // Fonction de déplacement (direction: 'left', 'right', 'up', 'down')
+        function move(direction) {
+            if (!gameActive) return false;
+            let oldGrid = JSON.parse(JSON.stringify(grid));
+            let oldScore = score;
+
+            // Rotation de la grille pour simplifier le traitement (tout ramener à un déplacement vers la gauche)
+            function rotate(times) {
+                for (let t = 0; t < times; t++) {
+                    let newGrid = [
+                        [0,0,0,0],
+                        [0,0,0,0],
+                        [0,0,0,0],
+                        [0,0,0,0]
+                    ];
+                    for (let i = 0; i < 4; i++) {
+                        for (let j = 0; j < 4; j++) {
+                            newGrid[j][3 - i] = grid[i][j];
+                        }
+                    }
+                    grid = newGrid;
+                }
+            }
+
+            // Appliquer la rotation pour que le mouvement soit toujours "gauche"
+            if (direction === 'right') rotate(2);
+            if (direction === 'up') rotate(1);
+            if (direction === 'down') rotate(3);
+
+            // Déplacement vers la gauche et fusion
+            for (let row = 0; row < 4; row++) {
+                let newRow = [];
+                for (let col = 0; col < 4; col++) {
+                    if (grid[row][col] !== 0) newRow.push(grid[row][col]);
+                }
+                // Fusionner les voisins égaux
+                for (let i = 0; i < newRow.length - 1; i++) {
+                    if (newRow[i] === newRow[i+1]) {
+                        newRow[i] *= 2;
+                        score += newRow[i];
+                        newRow.splice(i+1, 1);
                     }
                 }
-                while(line.length<4) line.push(0);
-                for(let j=0;j<4;j++){
-                    let x = dx===1 ? 3-j : (dx===-1 ? j : i);
-                    let y = dy===1 ? 3-j : (dy===-1 ? j : i);
-                    let idx = y*4+x;
-                    if(board[idx] !== line[j]) changed=true;
-                    board[idx] = line[j];
+                while (newRow.length < 4) newRow.push(0);
+                grid[row] = newRow;
+            }
+
+            // Rotation inverse
+            if (direction === 'right') rotate(2);
+            if (direction === 'up') rotate(3);
+            if (direction === 'down') rotate(1);
+
+            // Vérifier si un mouvement a eu lieu
+            let changed = JSON.stringify(oldGrid) !== JSON.stringify(grid);
+            if (changed) {
+                addRandomTile();
+                drawGrid();
+                if (isGameOver()) {
+                    gameActive = false;
+                    window.submitScore('2048', score);
                 }
             }
-            if(changed){
-                addRandom();
-                draw();
-                if(board.every(v=>v!==0)) active=false;
-            }
+            return changed;
         }
-        addRandom(); addRandom(); draw();
-        
+
+        // Initialisation
+        addRandomTile();
+        addRandomTile();
+        drawGrid();
+
+        // Événements clavier
         const keyHandler = (e) => {
-            if(!active) return;
-            if(e.key==='ArrowUp') move(0,-1);
-            if(e.key==='ArrowDown') move(0,1);
-            if(e.key==='ArrowLeft') move(-1,0);
-            if(e.key==='ArrowRight') move(1,0);
-            if(board.every(v=>v!==0)) { active=false; window.submitScore('2048',score); }
+            if (!gameActive) return;
+            if (e.key === 'ArrowLeft') move('left');
+            if (e.key === 'ArrowRight') move('right');
+            if (e.key === 'ArrowUp') move('up');
+            if (e.key === 'ArrowDown') move('down');
         };
         document.addEventListener('keydown', keyHandler);
-        
-        // Boutons
-        document.getElementById('btnUp').onclick = () => { if(active) move(0,-1); if(board.every(v=>v!==0)) { active=false; window.submitScore('2048',score); } };
-        document.getElementById('btnDown').onclick = () => { if(active) move(0,1); if(board.every(v=>v!==0)) { active=false; window.submitScore('2048',score); } };
-        document.getElementById('btnLeft').onclick = () => { if(active) move(-1,0); if(board.every(v=>v!==0)) { active=false; window.submitScore('2048',score); } };
-        document.getElementById('btnRight').onclick = () => { if(active) move(1,0); if(board.every(v=>v!==0)) { active=false; window.submitScore('2048',score); } };
-        
-        this.stop = ()=> document.removeEventListener('keydown', keyHandler);
+
+        // Événements boutons
+        document.getElementById('btnUp2048').onclick = () => move('up');
+        document.getElementById('btnDown2048').onclick = () => move('down');
+        document.getElementById('btnLeft2048').onclick = () => move('left');
+        document.getElementById('btnRight2048').onclick = () => move('right');
+
+        this.stop = () => {
+            document.removeEventListener('keydown', keyHandler);
+        };
     },
-    stop:()=>{}
-});
+    stop: () => {}
+}
 
 // 5. FLAPPY BIRD (déjà tactile par clic, mais ajout d'un bouton)
 window.GAMES.push({
