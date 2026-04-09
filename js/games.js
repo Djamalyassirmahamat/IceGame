@@ -1,5 +1,19 @@
 window.GAMES = [];
 
+window.GAMES.unshift({
+    name: 'TEST Bouton',
+    html: '<button id="testBtn" class="btn btn-danger">Cliquez</button>',
+    init: function() {
+        const btn = document.getElementById('testBtn');
+        if (btn) {
+            btn.onclick = () => alert('Bouton visible !');
+        } else {
+            console.error('Bouton introuvable');
+        }
+    },
+    stop: () => {}
+});
+
 // 1. PONG (avec boutons Haut/Bas)
 window.GAMES.push({
     name: 'Pong',
